@@ -41,7 +41,7 @@ DOWN = pygame.K_DOWN
 UP = pygame.K_UP
 
 # 旋转键控制
-ROTATE = pygame.K_SPACE
+ROTATE = pygame.K_UP
 
 # 初始化游戏窗口
 game_window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -51,8 +51,6 @@ pygame.display.set_caption(WINDOW_TITLE)
 clock = pygame.time.Clock()
 
 # 定义方块类
-
-
 class Block:
     def __init__(self, x, y, shape):
         self.x = x
@@ -61,16 +59,21 @@ class Block:
         self.color = 1
 
     def draw(self):
-        pygame.draw.rect(
-            game_window,
-            self.color,
-            (
-                BOARD_POS_X + self.x * BLOCK_SIZE,
-                BOARD_POS_Y + self.y * BLOCK_SIZE,
-                BLOCK_SIZE,
-                BLOCK_SIZE,
-            ),
-        )
+        leny = len(self.shape)
+        for y in range(leny):
+            lenx = len(self.shape[y])
+            for x in range(lenx):
+                if self.shape[y][x] != 0:
+                    pygame.draw.rect(
+                        game_window,
+                        self.color,
+                        (
+                            BOARD_POS_X + (self.x + x) * BLOCK_SIZE,
+                            BOARD_POS_Y + (self.y + y) * BLOCK_SIZE,
+                            BLOCK_SIZE,
+                            BLOCK_SIZE,
+                        ),
+                    )
 
     def move(self, dx, dy):
         self.x += dx
@@ -81,8 +84,6 @@ class Block:
 
 
 # 定义游戏板类
-
-
 class Board:
     def __init__(self):
         self.board = [[None for _ in range(BOARD_WIDTH)]
@@ -143,8 +144,6 @@ class Board:
 
 
 # 生成新的方块
-
-
 def generate_new_block():
     shapes = [
         [[1, 1, 1, 1]],
@@ -158,9 +157,6 @@ def generate_new_block():
     shape = random.choice(shapes)
     x = BOARD_WIDTH // 2 - len(shape[0]) // 2
     return Block(x, 0, shape)
-
-
-# 游戏循环
 
 
 # 游戏循环
