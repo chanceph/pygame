@@ -312,18 +312,24 @@ class DQNAgent:
 
 # 定义游戏循环
 agent = DQNAgent()
-batch_size = 1
+batch_size = 2
 scores = []
-epis = 100
+epis = 1000
 score = 0
+
 for episode in range(epis):
-    print("score1")
-    print(score)
+    print("####################################################")
+    print("####################################################")
+    print("####################################################")
+    print("####################################################")
+    print("####################################################")
+    print("回合结束，操作得分：", score)
     board = Board() # 创建棋盘
     board.current_block = generate_new_block() # 生成新方块
     next_block = generate_new_block() # 生成下一个方块
     state = board.get_state()
     score = 0
+    trueScore = 0
     while True:
 
         action = agent.act(state)
@@ -335,12 +341,13 @@ for episode in range(epis):
           board.add_block(board.current_block)
           num_rows_removed = board.remove_filled_rows()
           score += num_rows_removed * 100
+          trueScore += num_rows_removed * 100
           board.current_block = next_block
           next_block = generate_new_block()
           if not board.is_valid_position(board.current_block):
               # 游戏结束
               board.game_over = 1
-              print("游戏结束，得分：", score)
+              print("游戏结束，得分：", trueScore)
 
         board.draw()
         board.current_block.draw()
@@ -353,8 +360,6 @@ for episode in range(epis):
         agent.memory.push(state, action, reward, next_state, done)
         state = next_state
         score += reward
-        print("inner score")
-        print(score)
 
         if done:
             agent.update_target_model()
@@ -364,5 +369,5 @@ for episode in range(epis):
         if len(agent.memory.memory) > batch_size:
             agent.replay(batch_size)
     agent.update_epsilon()
+    agent.save_model()#每批次保存一下
 
-agent.save_model()
