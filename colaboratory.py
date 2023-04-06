@@ -1,6 +1,9 @@
+import tensorflow as tf
+import numpy as np
 import pygame
 import random
-import numpy as np
+import os
+
 
 # 初始化 Pygame
 pygame.init()
@@ -99,30 +102,34 @@ class Board:
     def __init__(self):
         self.board = [[0 for _ in range(BOARD_WIDTH)]
                       for _ in range(BOARD_HEIGHT)]
-        self.current_block = generate_new_block()
-        self.next_block = generate_new_block()
-        self.game_over = 0
+        self.current_block = 1
+        self.next_block = 1
+        self.game_over = 0 
 
     def get_state(self):
-        return self.board
+        return np.array(self.board)
 
     def do_action(self, action):
         if action == 1:
             if self.is_valid_position(Block(self.current_block.x - 1, self.current_block.y, self.current_block.shape)):
                 self.current_block.move(-1, 0)
+            return 1
         elif action == 2:
             if self.is_valid_position(Block(self.current_block.x + 1, self.current_block.y, self.current_block.shape)):
                 self.current_block.move(1, 0)
+            return 1
         elif action == 3:
             if self.is_valid_position(Block(self.current_block.x, self.current_block.y + 1, self.current_block.shape)):
                 self.current_block.move(0, 1)
+            return 2
         elif action == 0:
             rotated_block = Block(self.current_block.x, self.current_block.y, self.current_block.shape)
             rotated_block.rotate()
             if self.is_valid_position(rotated_block):
                 self.current_block = rotated_block
-        return 1
-        
+            return 0
+
+
     def draw(self):
         for y in range(BOARD_HEIGHT):
             for x in range(BOARD_WIDTH):
@@ -178,9 +185,7 @@ class Board:
             return num_rows_removed
 
     def is_game_over(self):
-        if self.game_over:
-            return 1
-
+        return self.game_over
 
 # 生成新的方块
 def generate_new_block():
@@ -201,65 +206,163 @@ def generate_new_block():
 board = Board() # 创建棋盘
 # 游戏循环
 def game_loop():
+    global board
     board = Board() # 创建棋盘
     board.current_block = generate_new_block() # 生成新方块
     next_block = generate_new_block() # 生成下一个方块
     score = 0 # 初始化得分
     
-    while True:
-        # 处理事件
-        # for event in pygame.event.get():
-        #     if event.type == pygame.QUIT:
-        #         pygame.quit()
-        #         quit()
-        #     elif event.type == pygame.KEYDOWN:
-        #         if event.key == pygame.K_LEFT:
-        #             if board.is_valid_position(Block(board.current_block.x - 1, board.current_block.y, board.current_block.shape)):
-        #                 board.current_block.move(-1, 0)
-        #         elif event.key == pygame.K_RIGHT:
-        #             if board.is_valid_position(Block(board.current_block.x + 1, board.current_block.y, board.current_block.shape)):
-        #                 board.current_block.move(1, 0)
-        #         elif event.key == pygame.K_DOWN:
-        #             if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
-        #                 board.current_block.move(0, 1)
-        #         elif event.key == pygame.K_UP:
-        #             rotated_block = Block(board.current_block.x, board.current_block.y, board.current_block.shape)
-        #             rotated_block.rotate()
-        #             if board.is_valid_position(rotated_block):
-        #                 board.current_block = rotated_block
+    # while True:
 
-        board.do_action(np.random.choice(range(ACTION_SIZE_GAME)))
+    #     print("进行中##################：")
         # 移动方块
-        if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
-            board.current_block.move(0, 1)
-        else:
-            board.add_block(board.current_block)
-            num_rows_removed = board.remove_filled_rows()
-            score += num_rows_removed
-            board.current_block = next_block
-            next_block = generate_new_block()
-            if not board.is_valid_position(board.current_block):
-                # 游戏结束
-                print(board.board)
-                board.game_over = 1
-                return score
+        # if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
+        #     board.current_block.move(0, 1)
+        # else:
+        #     board.add_block(board.current_block)
+        #     num_rows_removed = board.remove_filled_rows()
+        #     score += num_rows_removed
+        #     board.current_block = next_block
+        #     next_block = generate_new_block()
+        #     if not board.is_valid_position(board.current_block):
+        #         # 游戏结束
+        #         board.game_over = 1
+        #         print("游戏结束，得分：", score)
+        #         return score
 
-        # 渲染游戏界面
-        # game_window.fill((255, 255, 255))
-        board.draw()
-        board.current_block.draw()
-        # pygame.display.update()
-        #next_block.draw_next_block()
-        #draw_score(score)
+        # # 渲染游戏界面
+        # # game_window.fill((255, 255, 255))
+        # board.draw()
+        # board.current_block.draw()
 
         # 游戏帧率
         #clock.tick(100)
 
 
+# 定义状态空间、行动空间和奖励函数
+STATE_SIZE = 10
+ACTION_SIZE = 4
+REWARD_FACTOR = 10
 
-# 运行游戏
-score = game_loop()
-print("游戏结束，得分：", score)
+# 定义神经网络
+def build_network():
 
-# 退出 Pygame
-pygame.quit()
+    if os.path.exists('model.h5'):
+      model = tf.keras.models.load_model('model.h5')
+    else:
+      model = tf.keras.models.Sequential([
+          tf.keras.layers.Dense(128, activation='relu', input_shape=(STATE_SIZE,)),
+          tf.keras.layers.Dense(64, activation='relu'),
+          tf.keras.layers.Dense(ACTION_SIZE, activation='linear')
+      ])
+      model.compile(optimizer='adam', loss='mse')
+    return model
+
+# 定义经验回放器
+class ReplayMemory:
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.memory = []
+        
+    def push(self, state, action, reward, next_state, done):
+        self.memory.append((state, action, reward, next_state, done))
+        if len(self.memory) > self.capacity:
+            self.memory.pop(0)
+    
+    def sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
+
+# 定义强化学习代理
+class DQNAgent:
+    def __init__(self):
+        self.model = build_network()
+        self.target_model = build_network()
+        self.memory = ReplayMemory(10000)
+        self.gamma = 0.95
+        self.epsilon = 1.0
+        self.epsilon_min = 0.01
+        self.epsilon_decay = 0.995
+        
+    def act(self, state):
+        if np.random.rand() <= self.epsilon:
+            return np.random.choice(range(ACTION_SIZE))
+        else:
+            q_values = self.model.predict(state)
+            return np.argmax(q_values[0])
+    
+    def replay(self, batch_size):
+        minibatch = self.memory.sample(batch_size)
+        for state, action, reward, next_state, done in minibatch:
+            target = self.target_model.predict(state)
+            if done:
+                target[0][action] = reward
+            else:
+                q_future = max(self.target_model.predict(next_state)[0])
+                target[0][action] = reward + q_future * self.gamma
+            self.model.fit(state, target, epochs=1, verbose=0)
+    
+    def update_target_model(self):
+        self.target_model.set_weights(self.model.get_weights())
+        
+    def update_epsilon(self):
+        self.epsilon = max(self.epsilon_min, self.epsilon_decay*self.epsilon)
+
+    def save_model(self):
+        tf.keras.models.save_model(self.model, 'model.h5')
+
+# 定义游戏循环
+agent = DQNAgent()
+batch_size = 1
+scores = []
+epis = 100
+score = 0
+for episode in range(epis):
+    print("score1")
+    print(score)
+    board = Board() # 创建棋盘
+    board.current_block = generate_new_block() # 生成新方块
+    next_block = generate_new_block() # 生成下一个方块
+    state = board.get_state()
+    score = 0
+    while True:
+
+        action = agent.act(state)
+        reward = board.do_action(action)
+        #动作后更新界面
+        if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
+          board.current_block.move(0, 1)
+        else:
+          board.add_block(board.current_block)
+          num_rows_removed = board.remove_filled_rows()
+          score += num_rows_removed * 100
+          board.current_block = next_block
+          next_block = generate_new_block()
+          if not board.is_valid_position(board.current_block):
+              # 游戏结束
+              board.game_over = 1
+              print("游戏结束，得分：", score)
+
+        board.draw()
+        board.current_block.draw()
+
+        next_state = board.get_state()
+        done = board.is_game_over()
+
+        if done:
+            reward = -REWARD_FACTOR
+        agent.memory.push(state, action, reward, next_state, done)
+        state = next_state
+        score += reward
+        print("inner score")
+        print(score)
+
+        if done:
+            agent.update_target_model()
+            scores.append(score)
+            print("Episode: {}/{}, Score: {}, Epsilon: {:.2}".format(episode+1, epis, score, agent.epsilon))
+            break
+        if len(agent.memory.memory) > batch_size:
+            agent.replay(batch_size)
+    agent.update_epsilon()
+
+agent.save_model()
