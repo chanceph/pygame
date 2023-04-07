@@ -208,25 +208,25 @@ def game_loop():
     
     while True:
         # 处理事件
-        # for event in pygame.event.get():
-        #     if event.type == pygame.QUIT:
-        #         pygame.quit()
-        #         quit()
-        #     elif event.type == pygame.KEYDOWN:
-        #         if event.key == pygame.K_LEFT:
-        #             if board.is_valid_position(Block(board.current_block.x - 1, board.current_block.y, board.current_block.shape)):
-        #                 board.current_block.move(-1, 0)
-        #         elif event.key == pygame.K_RIGHT:
-        #             if board.is_valid_position(Block(board.current_block.x + 1, board.current_block.y, board.current_block.shape)):
-        #                 board.current_block.move(1, 0)
-        #         elif event.key == pygame.K_DOWN:
-        #             if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
-        #                 board.current_block.move(0, 1)
-        #         elif event.key == pygame.K_UP:
-        #             rotated_block = Block(board.current_block.x, board.current_block.y, board.current_block.shape)
-        #             rotated_block.rotate()
-        #             if board.is_valid_position(rotated_block):
-        #                 board.current_block = rotated_block
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    if board.is_valid_position(Block(board.current_block.x - 1, board.current_block.y, board.current_block.shape)):
+                        board.current_block.move(-1, 0)
+                elif event.key == pygame.K_RIGHT:
+                    if board.is_valid_position(Block(board.current_block.x + 1, board.current_block.y, board.current_block.shape)):
+                        board.current_block.move(1, 0)
+                elif event.key == pygame.K_DOWN:
+                    if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
+                        board.current_block.move(0, 1)
+                elif event.key == pygame.K_UP:
+                    rotated_block = Block(board.current_block.x, board.current_block.y, board.current_block.shape)
+                    rotated_block.rotate()
+                    if board.is_valid_position(rotated_block):
+                        board.current_block = rotated_block
 
         board.do_action(np.random.choice(range(ACTION_SIZE_GAME)))
         # 移动方块

@@ -51,8 +51,8 @@ UP = pygame.K_UP
 ROTATE = pygame.K_UP
 
 # 初始化游戏窗口
-# game_window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-# pygame.display.set_caption(WINDOW_TITLE)
+game_window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+pygame.display.set_caption(WINDOW_TITLE)
 
 
 # 游戏时钟
@@ -73,16 +73,16 @@ class Block:
             for x in range(lenx):
                 if self.shape[y][x] != 0:
                     pass
-                    # pygame.draw.rect(
-                    #     game_window,
-                    #     self.color,
-                    #     (
-                    #         BOARD_POS_X + (self.x + x) * BLOCK_SIZE,
-                    #         BOARD_POS_Y + (self.y + y) * BLOCK_SIZE,
-                    #         BLOCK_SIZE,
-                    #         BLOCK_SIZE,
-                    #     ),
-                    # )
+                    pygame.draw.rect(
+                        game_window,
+                        self.color,
+                        (
+                            BOARD_POS_X + (self.x + x) * BLOCK_SIZE,
+                            BOARD_POS_Y + (self.y + y) * BLOCK_SIZE,
+                            BLOCK_SIZE,
+                            BLOCK_SIZE,
+                        ),
+                    )
 
     def move(self, dx, dy):
         self.x += dx
@@ -135,16 +135,16 @@ class Board:
             for x in range(BOARD_WIDTH):
                 if self.board[y][x]:
                     pass
-                    # pygame.draw.rect(
-                    #     game_window,
-                    #     self.board[y][x],
-                    #     (
-                    #         BOARD_POS_X + x * BLOCK_SIZE,
-                    #         BOARD_POS_Y + y * BLOCK_SIZE,
-                    #         BLOCK_SIZE,
-                    #         BLOCK_SIZE,
-                    #     ),
-                    # )
+                    pygame.draw.rect(
+                        game_window,
+                        self.board[y][x],
+                        (
+                            BOARD_POS_X + x * BLOCK_SIZE,
+                            BOARD_POS_Y + y * BLOCK_SIZE,
+                            BLOCK_SIZE,
+                            BLOCK_SIZE,
+                        ),
+                    )
 
     def is_valid_position(self, block):
         leny = len(block.shape)
@@ -214,54 +214,54 @@ def game_loop():
     
     while True:
         # 处理事件
-        #for event in pygame.event.get():
-        #    if event.type == pygame.QUIT:
-        #        pygame.quit()
-        #        quit()
-        #    elif event.type == pygame.KEYDOWN:
-        #        if event.key == pygame.K_LEFT:
-        #            if board.is_valid_position(Block(board.current_block.x - 1, board.current_block.y, board.current_block.shape)):
-        #                board.current_block.move(-1, 0)
-        #        elif event.key == pygame.K_RIGHT:
-        #            if board.is_valid_position(Block(board.current_block.x + 1, board.current_block.y, board.current_block.shape)):
-        #                board.current_block.move(1, 0)
-        #        elif event.key == pygame.K_DOWN:
-        #            if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
-        #                board.current_block.move(0, 1)
-        #        elif event.key == pygame.K_UP:
-        #            rotated_block = Block(board.current_block.x, board.current_block.y, board.current_block.shape)
-        #            rotated_block.rotate()
-        #            if board.is_valid_position(rotated_block):
-        #                board.current_block = rotated_block
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    if board.is_valid_position(Block(board.current_block.x - 1, board.current_block.y, board.current_block.shape)):
+                        board.current_block.move(-1, 0)
+                elif event.key == pygame.K_RIGHT:
+                    if board.is_valid_position(Block(board.current_block.x + 1, board.current_block.y, board.current_block.shape)):
+                        board.current_block.move(1, 0)
+                elif event.key == pygame.K_DOWN:
+                    if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
+                        board.current_block.move(0, 1)
+                elif event.key == pygame.K_UP:
+                    rotated_block = Block(board.current_block.x, board.current_block.y, board.current_block.shape)
+                    rotated_block.rotate()
+                    if board.is_valid_position(rotated_block):
+                        board.current_block = rotated_block
     #     print("进行中##################：")
         # 移动方块
-        # if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
-        #     board.current_block.move(0, 1)
-        # else:
-        #     board.add_block(board.current_block)
-        #     num_rows_removed = board.remove_filled_rows()
-        #     score += num_rows_removed
-        #     board.current_block = next_block
-        #     next_block = generate_new_block()
-        #     if not board.is_valid_position(board.current_block):
-        #         # 游戏结束
-        #         board.game_over = 1
-        #         print("游戏结束，得分：", score)
-        #         return score
+        if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
+            board.current_block.move(0, 1)
+        else:
+            board.add_block(board.current_block)
+            num_rows_removed = board.remove_filled_rows()
+            score += num_rows_removed
+            board.current_block = next_block
+            next_block = generate_new_block()
+            if not board.is_valid_position(board.current_block):
+                # 游戏结束
+                board.game_over = 1
+                print("游戏结束，得分：", score)
+                return score
 
-        # # 渲染游戏界面
-        # # game_window.fill((255, 255, 255))
-        # board.draw()
-        # board.current_block.draw()
+        # 渲染游戏界面
+        game_window.fill((255, 255, 255))
+        board.draw()
+        board.current_block.draw()
 
-        # 游戏帧率
-        #clock.tick(100)
+         #游戏帧率
+        clock.tick(100)
 
 
 # 定义状态空间、行动空间和奖励函数
 STATE_SIZE = 10
 ACTION_SIZE = 4
-REWARD_FACTOR = 10
+REWARD_FACTOR = 200
 
 # 定义神经网络
 def build_network():
@@ -296,13 +296,17 @@ class DQNAgent:
     def __init__(self):
         self.model = build_network()
         self.target_model = build_network()
-        self.memory = ReplayMemory(10000)
+        self.memory = ReplayMemory(2000)
         self.gamma = 0.95
         self.epsilon = 1.0
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         
     def act(self, state):
+        #q_values = self.model.predict(state)
+        #print(q_values[0])
+        #print(np.argmax(q_values[0]))
+        #return np.argmax(q_values[0])
         if np.random.rand() <= self.epsilon:
             return np.random.choice(range(ACTION_SIZE))
         else:
@@ -331,9 +335,9 @@ class DQNAgent:
 
 # 定义游戏循环
 agent = DQNAgent()
-batch_size = 8
+batch_size = 4
 scores = []
-epis = 1000
+epis = 100
 score = 0
 
 for episode in range(epis):
@@ -346,29 +350,29 @@ for episode in range(epis):
     trueScore = 0
     while True:
     
-        #for event in pygame.event.get():
-        #    if event.type == pygame.QUIT:
-        #        pygame.quit()
-        #        quit()
-        #    elif event.type == pygame.KEYDOWN:
-        #        if event.key == pygame.K_LEFT:
-        #            if board.is_valid_position(Block(board.current_block.x - 1, board.current_block.y, board.current_block.shape)):
-        #                board.current_block.move(-1, 0)
-        #                action=1
-        #        elif event.key == pygame.K_RIGHT:
-        #            if board.is_valid_position(Block(board.current_block.x + 1, board.current_block.y, board.current_block.shape)):
-        #                board.current_block.move(1, 0)
-        #                action=2
-        #        elif event.key == pygame.K_DOWN:
-        #            if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
-        #                board.current_block.move(0, 1)
-        #                action=3
-        #        elif event.key == pygame.K_UP:
-        #            rotated_block = Block(board.current_block.x, board.current_block.y, board.current_block.shape)
-        #            rotated_block.rotate()
-        #            if board.is_valid_position(rotated_block):
-        #                board.current_block = rotated_block
-        #                action=0
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    if board.is_valid_position(Block(board.current_block.x - 1, board.current_block.y, board.current_block.shape)):
+                        board.current_block.move(-1, 0)
+                        action=1
+                elif event.key == pygame.K_RIGHT:
+                    if board.is_valid_position(Block(board.current_block.x + 1, board.current_block.y, board.current_block.shape)):
+                        board.current_block.move(1, 0)
+                        action=2
+                elif event.key == pygame.K_DOWN:
+                    if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
+                        board.current_block.move(0, 1)
+                        action=3
+                elif event.key == pygame.K_UP:
+                    rotated_block = Block(board.current_block.x, board.current_block.y, board.current_block.shape)
+                    rotated_block.rotate()
+                    if board.is_valid_position(rotated_block):
+                        board.current_block = rotated_block
+                        action=0
 
         action = agent.act(state)
         reward = board.do_action(action)
@@ -387,10 +391,11 @@ for episode in range(epis):
               board.game_over = 1
               print("游戏结束，得分：", trueScore)
 
-        #game_window.fill((255, 255, 255))
+        game_window.fill((255, 255, 255))
         board.draw()
         board.current_block.draw()
-        #pygame.display.update()
+        pygame.display.update()
+        
         #clock.tick(10)
 
         next_state = board.get_state()
