@@ -95,7 +95,6 @@ class Block:
         self.shape = rotated
 
 
-
 # 定义游戏板类
 class Board:
     def __init__(self):
@@ -112,15 +111,12 @@ class Board:
         self.remove_before_block(self.current_block)
         if action == 1:
             if self.is_valid_position(Block(self.current_block.x - 1, self.current_block.y, self.current_block.shape)):
-                #self.current_block.move(-1, 0)
                 self.current_block.move(-1, 0)
         elif action == 2:
             if self.is_valid_position(Block(self.current_block.x + 1, self.current_block.y, self.current_block.shape)):
-                #self.current_block.move(1, 0)
                 self.current_block.move(1, 0)
         elif action == 3:
             if self.is_valid_position(Block(self.current_block.x, self.current_block.y + 1, self.current_block.shape)):
-                #self.current_block.move(0, 1)
                 self.current_block.move(0, 1)
         elif action == 0:
             rotated_block = Block(self.current_block.x, self.current_block.y, self.current_block.shape)
@@ -211,8 +207,6 @@ def generate_new_block():
     return Block(x, 0, shape)
 
 
-
-
 # 定义状态空间、行动空间和奖励函数
 STATE_SIZE = 10
 ACTION_SIZE = 4
@@ -240,10 +234,6 @@ class ReplayMemory:
         self.memory = []
         
     def push(self, state, action, reward, next_state, done):
-        print("########################push########################")
-        print(action, reward, done)
-        print(state)
-        print(next_state)
         self.memory.append((state, action, reward, next_state, done))
         if len(self.memory) > self.capacity:
             self.memory.pop(0)
@@ -263,10 +253,6 @@ class DQNAgent:
         self.epsilon_decay = 0.995
         
     def act(self, state):
-        #q_values = self.model.predict(state)
-        #print(q_values[0])
-        #print(np.argmax(q_values[0]))
-        #return np.argmax(q_values[0])
         if np.random.rand() <= self.epsilon:
             return np.random.choice(range(ACTION_SIZE))
         else:
@@ -299,7 +285,6 @@ agent = DQNAgent()
 batch_size = 32
 scores = []
 epis = 1000
-score = 0
 user_contorl = False
 for episode in range(epis):
     board = Board() # 创建棋盘
@@ -323,7 +308,7 @@ for episode in range(epis):
                 elif event.key == pygame.K_UP:
                     action = 0
                 elif event.key == pygame.K_q:
-                    user_contorl = not  user_contorl
+                    user_contorl = not user_contorl
 
         if not user_contorl:
             action = agent.act(state)
