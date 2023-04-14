@@ -72,7 +72,6 @@ class Block:
             lenx = len(self.shape[y])
             for x in range(lenx):
                 if self.shape[y][x] != 0:
-                    pass
                     pygame.draw.rect(
                         game_window,
                         self.color,
@@ -110,32 +109,32 @@ class Board:
         return np.array(self.board)
 
     def do_action(self, action):
+        self.remove_before_block(self.current_block)
         if action == 1:
             if self.is_valid_position(Block(self.current_block.x - 1, self.current_block.y, self.current_block.shape)):
+                #self.current_block.move(-1, 0)
                 self.current_block.move(-1, 0)
-            return 1
         elif action == 2:
             if self.is_valid_position(Block(self.current_block.x + 1, self.current_block.y, self.current_block.shape)):
+                #self.current_block.move(1, 0)
                 self.current_block.move(1, 0)
-            return 1
         elif action == 3:
             if self.is_valid_position(Block(self.current_block.x, self.current_block.y + 1, self.current_block.shape)):
+                #self.current_block.move(0, 1)
                 self.current_block.move(0, 1)
-            return 1
         elif action == 0:
             rotated_block = Block(self.current_block.x, self.current_block.y, self.current_block.shape)
             rotated_block.rotate()
             if self.is_valid_position(rotated_block):
                 self.current_block = rotated_block
-            return 1
-        return 0
+        self.add_block(self.current_block)
+        return 1
 
 
     def draw(self):
         for y in range(BOARD_HEIGHT):
             for x in range(BOARD_WIDTH):
                 if self.board[y][x]:
-                    pass
                     pygame.draw.rect(
                         game_window,
                         self.board[y][x],
@@ -169,6 +168,14 @@ class Board:
             for x in range(lenx):
                 if block.shape[y][x] != 0:
                     self.board[block.y + y][block.x + x] = block.color
+
+    def remove_before_block(self, block):
+        leny = len(block.shape)
+        for y in range(leny):
+            lenx = len(block.shape[y])
+            for x in range(lenx):
+                if block.shape[y][x] != 0:
+                    self.board[block.y + y][block.x + x] = 0
 
     def remove_filled_rows(self):
         num_rows_removed = 0
@@ -233,6 +240,10 @@ class ReplayMemory:
         self.memory = []
         
     def push(self, state, action, reward, next_state, done):
+        print("########################push########################")
+        print(action, reward, done)
+        print(state)
+        print(next_state)
         self.memory.append((state, action, reward, next_state, done))
         if len(self.memory) > self.capacity:
             self.memory.pop(0)
@@ -304,27 +315,13 @@ for episode in range(epis):
             if event.type == pygame.KEYDOWN:
                 print(event.key)
                 if event.key == pygame.K_LEFT:
-                    action=1
-                    #if board.is_valid_position(Block(board.current_block.x - 1, board.current_block.y, board.current_block.shape)):
-                    #    board.current_block.move(-1, 0)
-                    #    action=1
+                    action = 1
                 elif event.key == pygame.K_RIGHT:
-                    action=2
-                    #if board.is_valid_position(Block(board.current_block.x + 1, board.current_block.y, board.current_block.shape)):
-                    #    board.current_block.move(1, 0)
-                    #    action=2
+                    action = 2
                 elif event.key == pygame.K_DOWN:
-                    action=3
-                    #if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
-                    #    board.current_block.move(0, 1)
-                    #    action=3
+                    action = 3
                 elif event.key == pygame.K_UP:
-                    action=0
-                    #rotated_block = Block(board.current_block.x, board.current_block.y, board.current_block.shape)
-                    #rotated_block.rotate()
-                    #if board.is_valid_position(rotated_block):
-                    #    board.current_block = rotated_block
-                    #    action=0
+                    action = 0
                 elif event.key == pygame.K_q:
                     user_contorl = not  user_contorl
 
@@ -334,8 +331,10 @@ for episode in range(epis):
         reward = board.do_action(action)
 
         #动作后更新界面
+        board.remove_before_block(board.current_block)
         if board.is_valid_position(Block(board.current_block.x, board.current_block.y + 1, board.current_block.shape)):
           board.current_block.move(0, 1)
+          board.add_block(board.current_block)
         else:
           board.add_block(board.current_block)
           num_rows_removed = board.remove_filled_rows()
@@ -348,12 +347,13 @@ for episode in range(epis):
               board.game_over = 1
               print("结束，得分：", trueScore)
 
+        
         game_window.fill((255, 255, 255))
         board.draw()
         board.current_block.draw()
         pygame.display.update()
 
-        clock.tick(1)
+        #clock.tick(1)
 
         next_state = board.get_state()
         done = board.is_game_over()
