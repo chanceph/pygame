@@ -335,7 +335,7 @@ for episode in range(epis):
               board.game_over = 1
               print("结束，得分：", trueScore)
 
-        game_window.fill((255, 255, 255))
+        #game_window.fill((255, 255, 255))
         board.draw()
         board.current_block.draw()
         #pygame.display.update()
