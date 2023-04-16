@@ -220,8 +220,8 @@ def build_network():
     else:
       model = tf.keras.models.Sequential([
           tf.keras.layers.Dense(128, activation='relu', input_shape=(STATE_SIZE,)),
-          tf.keras.layers.Dense(256, activation='relu'),
-          tf.keras.layers.Dense(256, activation='relu'),
+          #tf.keras.layers.Dense(256, activation='relu'),
+          tf.keras.layers.Dense(64, activation='relu'),
           tf.keras.layers.Dense(ACTION_SIZE, activation='linear')
       ])
       model.compile(optimizer='adam', loss='mse')
@@ -234,6 +234,8 @@ class ReplayMemory:
         self.memory = []
         
     def push(self, state, action, reward, next_state, done):
+        print(state)
+        print(next_state)
         self.memory.append((state, action, reward, next_state, done))
         if len(self.memory) > self.capacity:
             self.memory.pop(0)
@@ -248,7 +250,7 @@ class DQNAgent:
         self.target_model = build_network()
         self.memory = ReplayMemory(10000)
         self.gamma = 0.95
-        self.epsilon = 0.5
+        self.epsilon = 0.2
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         
@@ -332,7 +334,6 @@ for episode in range(epis):
               board.game_over = 1
               print("结束，得分：", trueScore)
 
-        
         game_window.fill((255, 255, 255))
         board.draw()
         board.current_block.draw()
