@@ -291,6 +291,7 @@ user_contorl = False
 for episode in range(epis):
     board = Board() # 创建棋盘
     board.current_block = generate_new_block() # 生成新方块
+    board.add_block(board.current_block)
     next_block = generate_new_block() # 生成下一个方块
     state = board.get_state()
     score = 0
@@ -336,7 +337,7 @@ for episode in range(epis):
 
         game_window.fill((255, 255, 255))
         board.draw()
-        board.current_block.draw()
+        #board.current_block.draw()
         pygame.display.update()
 
         #clock.tick(1)
@@ -356,8 +357,8 @@ for episode in range(epis):
             scores.append(score)
             print("Episode: {}/{}, Score: {}, Epsilon: {:.2}".format(episode+1, epis, score, agent.epsilon))
             break
-    if len(agent.memory.memory) > batch_size:
-        agent.replay(batch_size)
+        if len(agent.memory.memory) > batch_size:
+            agent.replay(batch_size)
     agent.update_epsilon()
     agent.save_model()#每批次保存一下
 
