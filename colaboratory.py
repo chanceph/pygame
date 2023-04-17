@@ -254,7 +254,7 @@ class DQNAgent:
         self.target_model = build_network()
         self.memory = ReplayMemory(10000)
         self.gamma = 0.95
-        self.epsilon = 0.6
+        self.epsilon = 0.5
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         
@@ -336,6 +336,7 @@ for episode in range(epis):
               # 游戏结束
               board.game_over = 1
               print("结束，得分：", trueScore)
+          board.add_block(board.current_block)
 
         #game_window.fill((255, 255, 255))
         board.draw()
