@@ -214,11 +214,13 @@ STATE_SIZE = 10
 ACTION_SIZE = 4
 REWARD_FACTOR = 200
 
+file_path = '/content/drive/MyDrive/model.h5'
+
 # 定义神经网络
 def build_network():
 
-    if os.path.exists('model.h5'):
-      model = tf.keras.models.load_model('model.h5')
+    if os.path.exists(file_path):
+      model = tf.keras.models.load_model(file_path)
     else:
       model = tf.keras.models.Sequential([
           tf.keras.layers.Dense(128, activation='relu', input_shape=(STATE_SIZE,)),
@@ -236,7 +238,7 @@ class ReplayMemory:
         self.memory = []
         
     def push(self, state, action, reward, next_state, done):
-        print(state)
+        #print(state)
         print(next_state)
         self.memory.append((state, action, reward, next_state, done))
         if len(self.memory) > self.capacity:
@@ -252,7 +254,7 @@ class DQNAgent:
         self.target_model = build_network()
         self.memory = ReplayMemory(10000)
         self.gamma = 0.95
-        self.epsilon = 1.0
+        self.epsilon = 0.6
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         
@@ -282,7 +284,7 @@ class DQNAgent:
         self.epsilon = max(self.epsilon_min, self.epsilon_decay*self.epsilon)
 
     def save_model(self):
-        tf.keras.models.save_model(self.model, 'model.h5')
+        tf.keras.models.save_model(self.model, file_path)
 
 # 定义游戏循环
 agent = DQNAgent()
@@ -337,7 +339,7 @@ for episode in range(epis):
 
         #game_window.fill((255, 255, 255))
         board.draw()
-        board.current_block.draw()
+        #board.current_block.draw()
         #pygame.display.update()
 
         #clock.tick(1)
@@ -359,6 +361,6 @@ for episode in range(epis):
             break
         if len(agent.memory.memory) > batch_size:
             agent.replay(batch_size)
+            agent.save_model()#每批次保存一下
     agent.update_epsilon()
-    agent.save_model()#每批次保存一下
-
+    
