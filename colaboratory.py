@@ -252,9 +252,9 @@ class DQNAgent:
     def __init__(self):
         self.model = build_network()
         self.target_model = build_network()
-        self.memory = ReplayMemory(10000)
+        self.memory = ReplayMemory(2000)
         self.gamma = 0.95
-        self.epsilon = 0.5
+        self.epsilon = 0.3
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         
@@ -288,10 +288,11 @@ class DQNAgent:
 
 # 定义游戏循环
 agent = DQNAgent()
-batch_size = 32
+batch_size = 64
 scores = []
 epis = 1000
 user_contorl = False
+count = 0
 for episode in range(epis):
     board = Board() # 创建棋盘
     board.current_block = generate_new_block() # 生成新方块
@@ -301,6 +302,7 @@ for episode in range(epis):
     trueScore = 0
     while True:
 
+        count = count + 1
         action = -1
         #for event in pygame.event.get():
         #    if event.type == pygame.KEYDOWN:
@@ -361,7 +363,7 @@ for episode in range(epis):
             print("Episode: {}/{}, Score: {}, Epsilon: {:.2}".format(episode+1, epis, score, agent.epsilon))
             break
         if len(agent.memory.memory) > batch_size:
-            agent.replay(batch_size)
-            agent.save_model()#每批次保存一下
-    agent.update_epsilon()
-    
+            if (count % batch_size) == 0:
+              agent.replay(batch_size)
+              agent.save_model()#每批次保存一下
+              agent.update_epsilon()
